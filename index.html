@@ -4,11 +4,15 @@
 <head>
     <title>Playing with Matter.js</title>
     <style>
+        body {
+            margin: 0;
+        }
     </style>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/matter-js/0.19.0/matter.min.js"></script>
 </head>
 
 <body>
+    <canvas></canvas>
     <script>
         // module aliases
         var Engine = Matter.Engine,
@@ -25,13 +29,21 @@
         // create a renderer
         var render = Render.create({
             element: document.body,
-            engine: engine
+            engine: engine,
+            canvas: document.getElementsByTagName('canvas')[0],
+            options: {
+                showCollisions: true,
+                // showDebug: true, // graphs
+                showVelocity: true,
+                height: window.innerHeight - 10,
+                width: window.innerWidth - 10,
+            },
         });
 
         // create two boxes and a ground
-        var boxA = Bodies.rectangle(400, 200, 80, 80);
-        var boxB = Bodies.rectangle(450, 50, 80, 80);
-        var ground = Bodies.rectangle(400, 610, 810, 60, { isStatic: true });
+        var boxA = Bodies.rectangle(400, 200, 80, 80, {friction: .001});
+        var boxB = Bodies.rectangle(450, 50, 80, 80, {friction: .001});
+        var ground = Bodies.rectangle(400, 610, 810, 60, { isStatic: true, friction: .001 });
 
         // add all of the bodies to the world
         Composite.add(engine.world, [boxA, boxB, ground]);
@@ -50,8 +62,8 @@
             mouseConstraint = MouseConstraint.create(engine, {
                 mouse: mouse,
                 constraint: {
-                // allow bodies on mouse to rotate
-                angularStiffness: 0.2,
+                    // allow bodies on mouse to rotate
+                    angularStiffness: 0.2,
                     stiffness: 0.2,
                     render: {
                         visible: true
