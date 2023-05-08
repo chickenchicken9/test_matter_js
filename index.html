@@ -9,6 +9,7 @@
         }
     </style>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/matter-js/0.19.0/matter.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/poly-decomp@0.2.1/build/decomp.min.js"></script>
 </head>
 
 <body>
@@ -21,6 +22,8 @@
             MouseConstraint = Matter.MouseConstraint,
             Mouse = Matter.Mouse,
             Bodies = Matter.Bodies,
+            Composites = Matter.Composites,
+            Common = Matter.Common,
             Composite = Matter.Composite;
 
         // create an engine
@@ -46,28 +49,47 @@
         });
 
         const friction = 0.1;
+        const frictionStatic = 0.5;
         const chamfer_radius = 0;
 
         // create two boxes and a ground
         var boxA = Bodies.rectangle(400, 200, 80, 80, {
             friction,
+            frictionStatic,
             chamfer: { radius: chamfer_radius },
         });
         var boxB = Bodies.rectangle(450, 50, 80, 80, {
             friction,
+            frictionStatic,
             chamfer: { radius: chamfer_radius },
         });
 
         const walls = [
             // ground
-            Bodies.rectangle(width / 2, height, width + 50, 60, { isStatic: true, friction }),
+            Bodies.rectangle(width / 2, height, width + 50, 60, {
+                isStatic: true,
+                friction,
+                frictionStatic,
+            }),
             // ceiling
-            Bodies.rectangle(width / 2, 0, width + 50, 60, { isStatic: true, friction }),
+            Bodies.rectangle(width / 2, 0, width + 50, 60, {
+                isStatic: true,
+                friction,
+                frictionStatic,
+            }),
             // left wall
-        Bodies.rectangle(0, height / 2, 60, height, { isStatic: true, friction }),
-        // right wall
-        Bodies.rectangle(width, height / 2, 60, height, { isStatic: true, friction }),
-    ];
+            Bodies.rectangle(0, height / 2, 60, height, {
+                isStatic: true,
+                friction,
+                frictionStatic,
+            }),
+            // right wall
+            Bodies.rectangle(width, height / 2, 60, height, {
+                isStatic: true,
+                friction,
+                frictionStatic,
+            }),
+        ];
 
         // add all of the bodies to the world
         Composite.add(engine.world, [boxA, boxB, ...walls]);
@@ -99,6 +121,23 @@
 
         // keep the mouse in sync with rendering
         render.mouse = mouse;
+
+        var arrow = Matter.Vertices.fromPath('40 0 40 20 100 20 100 80 40 80 40 100 0 50'),
+            chevron = Matter.Vertices.fromPath('100 0 75 50 100 100 25 100 0 50 25 0'),
+            star = Matter.Vertices.fromPath('50 0 63 38 100 38 69 59 82 100 50 75 18 100 31 59 0 38 37 38'),
+            horseShoe = Matter.Vertices.fromPath('35 7 19 17 14 38 14 58 25 79 45 85 65 84 65 66 46 67 34 59 30 44 33 29 45 23 66 23 66 7 53 7');
+
+        var stack = Composites.stack(50, 50, 6, 2, 10, 10, function (x, y) {
+            var color = Common.choose(['#f19648', '#f5d259', '#f55a3c', '#063e7b', '#ececd1']);
+            return Bodies.fromVertices(x, y, Common.choose([arrow, chevron, star, horseShoe]), {
+                render: {
+                    fillStyle: color,
+                    strokeStyle: color,
+                    lineWidth: 10
+                }
+            }, true);
+        });
+        Composite.add(engine.world, stack);
     </script>
 </body>
 
