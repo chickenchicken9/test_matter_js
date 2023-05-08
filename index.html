@@ -14,6 +14,8 @@
         var Engine = Matter.Engine,
             Render = Matter.Render,
             Runner = Matter.Runner,
+            MouseConstraint = Matter.MouseConstraint,
+            Mouse = Matter.Mouse,
             Bodies = Matter.Bodies,
             Composite = Matter.Composite;
 
@@ -42,6 +44,25 @@
 
         // run the engine
         Runner.run(runner, engine);
+
+        // add mouse control
+        var mouse = Mouse.create(render.canvas),
+            mouseConstraint = MouseConstraint.create(engine, {
+                mouse: mouse,
+                constraint: {
+                // allow bodies on mouse to rotate
+                angularStiffness: 0.2,
+                    stiffness: 0.2,
+                    render: {
+                        visible: true
+                    }
+                }
+            });
+
+        Composite.add(engine.world, mouseConstraint);
+
+        // keep the mouse in sync with rendering
+        render.mouse = mouse;
     </script>
 </body>
 
