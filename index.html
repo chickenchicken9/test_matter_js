@@ -26,27 +26,51 @@
         // create an engine
         var engine = Engine.create();
 
+        const canvas = document.getElementsByTagName('canvas')[0];
+        const height = window.innerHeight - 20;
+        const width = window.innerWidth - 20;
+
         // create a renderer
         var render = Render.create({
             element: document.body,
             engine: engine,
-            canvas: document.getElementsByTagName('canvas')[0],
+            canvas,
             options: {
                 showCollisions: true,
                 // showDebug: true, // graphs
                 showVelocity: true,
-                height: window.innerHeight - 10,
-                width: window.innerWidth - 10,
+                height,
+                width,
+                pixelRatio: 2,
             },
         });
 
+        const friction = 0.1;
+        const chamfer_radius = 0;
+
         // create two boxes and a ground
-        var boxA = Bodies.rectangle(400, 200, 80, 80, {friction: .001});
-        var boxB = Bodies.rectangle(450, 50, 80, 80, {friction: .001});
-        var ground = Bodies.rectangle(400, 610, 810, 60, { isStatic: true, friction: .001 });
+        var boxA = Bodies.rectangle(400, 200, 80, 80, {
+            friction,
+            chamfer: { radius: chamfer_radius },
+        });
+        var boxB = Bodies.rectangle(450, 50, 80, 80, {
+            friction,
+            chamfer: { radius: chamfer_radius },
+        });
+
+        const walls = [
+            // ground
+            Bodies.rectangle(width / 2, height, width + 50, 60, { isStatic: true, friction }),
+            // ceiling
+            Bodies.rectangle(width / 2, 0, width + 50, 60, { isStatic: true, friction }),
+            // left wall
+        Bodies.rectangle(0, height / 2, 60, height, { isStatic: true, friction }),
+        // right wall
+        Bodies.rectangle(width, height / 2, 60, height, { isStatic: true, friction }),
+    ];
 
         // add all of the bodies to the world
-        Composite.add(engine.world, [boxA, boxB, ground]);
+        Composite.add(engine.world, [boxA, boxB, ...walls]);
 
         // run the renderer
         Render.run(render);
